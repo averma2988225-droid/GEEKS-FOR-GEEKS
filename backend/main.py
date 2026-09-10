@@ -7,6 +7,15 @@ Includes error handling, clarification, conversation context, and fallback syste
 from __future__ import annotations
 
 
+import os
+import sys
+from pathlib import Path
+
+# Ensure backend directory is in sys.path when running from project root
+_BACKEND_DIR = Path(__file__).resolve().parent
+if str(_BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_DIR))
+
 import time
 import logging
 from contextlib import asynccontextmanager
@@ -84,7 +93,17 @@ class DatasetListResponse(BaseModel):
     datasets: list[dict]
 
 
-# --- Health Check ---
+# --- Health Check & Root ---
+@app.get("/")
+def root():
+    return {
+        "service": "QueryViz API",
+        "status": "running",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "queryviz-api"}
